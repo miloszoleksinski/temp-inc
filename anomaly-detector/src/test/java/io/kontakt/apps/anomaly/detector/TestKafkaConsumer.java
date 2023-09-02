@@ -23,33 +23,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class TestKafkaConsumer<V> implements Closeable {
     protected Consumer<String, V> consumer;
 
-    public TestKafkaConsumer(String bootstrapServers,
-                             String outputTopicName,
-                             Class<V> valueClass) {
-        Map<String, Object> consumerProperties = KafkaTestUtils.consumerProps(
-                bootstrapServers,
-                "testGroup",
-                "true");
+    public TestKafkaConsumer(String bootstrapServers, String outputTopicName, Class<V> valueClass) {
+        Map<String, Object> consumerProperties = KafkaTestUtils.consumerProps(bootstrapServers, "testGroup", "true");
         JsonDeserializer<V> deserializer = new JsonDeserializer<>(valueClass);
         deserializer.addTrustedPackages("*");
-        this.consumer = new DefaultKafkaConsumerFactory<>(consumerProperties,
-                new StringDeserializer(),
-                deserializer).createConsumer();
+        this.consumer = new DefaultKafkaConsumerFactory<>(consumerProperties, new StringDeserializer(), deserializer).createConsumer();
         this.consumer.subscribe(List.of(outputTopicName));
     }
 
     public List<V> drain(int expectedRecordCount, Duration waitAtMost) {
         return drainRecords(consumerRecords -> consumerRecords.size() == expectedRecordCount, waitAtMost)
-                .stream()
-                .map(ConsumerRecord::value)
-                .collect(Collectors.toList());
+                .stream().map(ConsumerRecord::value).collect(Collectors.toList());
     }
 
     public List<V> drain(Predicate<List<ConsumerRecord<String, V>>> predicate, Duration waitAtMost) {
-        return drainRecords(predicate, waitAtMost)
-                .stream()
-                .map(ConsumerRecord::value)
-                .collect(Collectors.toList());
+        return drainRecords(predicate, waitAtMost).stream().map(ConsumerRecord::value).collect(Collectors.toList());
     }
 
     public void assertNoMoreRecords() {
@@ -64,11 +52,10 @@ public class TestKafkaConsumer<V> implements Closeable {
         List<ConsumerRecord<String, V>> allRecords = new ArrayList<>();
         Awaitility.await()
                 .atMost(waitAtMost)
-                .pollInterval(Durations.ONE_HUNDRED_MILLISECONDS).until(() -> {
+                .pollInterval(Durations.ONE_HUNDRED_MILLISECONDS)
+                .until(() -> {
                     ConsumerRecords<String, V> poll = consumer.poll(Duration.ofMillis(50));
-                    poll
-                            .iterator()
-                            .forEachRemaining(allRecords::add);
+                    poll.iterator().forEachRemaining(allRecords::add);
                     return predicate.test(allRecords);
                 });
         return allRecords;

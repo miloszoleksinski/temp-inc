@@ -21,11 +21,7 @@ public class TestKafkaProducer<T> implements Closeable {
     }
 
     public void produce(String key, T value) {
-        this.producer.send(new ProducerRecord<>(
-                topic,
-                key,
-                value
-        ));
+        this.producer.send(new ProducerRecord<>(topic, key, value));
         this.producer.flush();
     }
 

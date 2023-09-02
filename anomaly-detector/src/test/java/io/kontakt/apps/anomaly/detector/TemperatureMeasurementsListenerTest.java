@@ -18,15 +18,8 @@ public class TemperatureMeasurementsListenerTest extends AbstractIntegrationTest
 
     @Test
     void testInOutFlow() {
-        try (TestKafkaConsumer<Anomaly> consumer = new TestKafkaConsumer<>(
-                kafkaContainer.getBootstrapServers(),
-                outputTopic,
-                Anomaly.class
-        );
-             TestKafkaProducer<TemperatureReading> producer = new TestKafkaProducer<>(
-                     kafkaContainer.getBootstrapServers(),
-                     inputTopic
-             )) {
+        try (TestKafkaConsumer<Anomaly> consumer = new TestKafkaConsumer<>(kafkaContainer.getBootstrapServers(), outputTopic, Anomaly.class);
+             TestKafkaProducer<TemperatureReading> producer = new TestKafkaProducer<>(kafkaContainer.getBootstrapServers(), inputTopic)) {
             TemperatureReading temperatureReading = new TemperatureReading(20d, "room", "thermometer", Instant.parse("2023-01-01T00:00:00.000Z"));
             producer.produce(temperatureReading.thermometerId(), temperatureReading);
             consumer.drain(
