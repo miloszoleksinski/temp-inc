@@ -4,27 +4,44 @@ import io.kontak.apps.event.TemperatureReading;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
-import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class SimpleTemperatureGenerator implements TemperatureGenerator {
 
     private final Random random = new Random();
+    private final Map<String, String> thermometerRoomMapping = new ConcurrentHashMap<>();
+
+    public SimpleTemperatureGenerator() {
+        thermometerRoomMapping.put("Thermometer1-1", "Room1");
+        thermometerRoomMapping.put("Thermometer2-1", "Room2");
+        thermometerRoomMapping.put("Thermometer2-2", "Room2");
+        thermometerRoomMapping.put("Thermometer2-3", "Room2");
+        thermometerRoomMapping.put("Thermometer3-1", "Room3");
+    }
 
     @Override
     public List<TemperatureReading> generate() {
-        return List.of(generateSingleReading());
+        List<TemperatureReading> temperatureReadings = new ArrayList<>();
+        for(int i=0; i<=10; i++) {
+            temperatureReadings.add(generateSingleReading());
+        }
+        return temperatureReadings;
     }
 
     private TemperatureReading generateSingleReading() {
-        //TODO basic implementation, should be changed to the one that will allow to test and demo solution on realistic data
-        return new TemperatureReading(
-                random.nextDouble(10d, 30d),
-                UUID.randomUUID().toString(),
-                UUID.randomUUID().toString(),
-                Instant.now()
-        );
+        double temperature = random.nextDouble(10d, 30d);
+        String thermometerId = getRandomThermometer();
+        String roomId = thermometerRoomMapping.get(thermometerId);
+        return new TemperatureReading(temperature, roomId, thermometerId, Instant.now());
+    }
+
+    private String getRandomThermometer() {
+        int index = random.nextInt(thermometerRoomMapping.size());
+        return thermometerRoomMapping.keySet().toArray(new String[0])[index];
     }
 }
