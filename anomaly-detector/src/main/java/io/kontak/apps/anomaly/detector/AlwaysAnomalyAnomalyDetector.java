@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
-@Component
+@Component("alwaysAnomalyAnomalyDetector")
 public class AlwaysAnomalyAnomalyDetector implements AnomalyDetector {
     @Override
     public Optional<Anomaly> apply(List<TemperatureReading> temperatureReadings) {
