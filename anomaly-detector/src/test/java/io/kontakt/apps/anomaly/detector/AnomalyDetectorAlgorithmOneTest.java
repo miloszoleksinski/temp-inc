@@ -5,6 +5,7 @@ import io.kontak.apps.event.Anomaly;
 import io.kontak.apps.event.TemperatureReading;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.test.context.TestPropertySource;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@TestPropertySource(locations = "classpath:application-test-algorithm-one.properties")
 public class AnomalyDetectorAlgorithmOneTest extends AbstractIntegrationTest {
 
     @Value("${spring.cloud.stream.bindings.anomalyDetectorProcessor-in-0.destination}")
@@ -24,7 +26,7 @@ public class AnomalyDetectorAlgorithmOneTest extends AbstractIntegrationTest {
     private String outputTopic;
 
     @Test
-    void testInOutFlow() {
+    void testAlgorithmOneWithAnomaly() {
         try (TestKafkaConsumer<Anomaly> consumer = new TestKafkaConsumer<>(kafkaContainer.getBootstrapServers(), outputTopic, Anomaly.class);
              TestKafkaProducer<TemperatureReading> producer = new TestKafkaProducer<>(kafkaContainer.getBootstrapServers(), inputTopic)) {
             sendTenReadingsWithOneAnomaly(producer);
@@ -32,6 +34,15 @@ public class AnomalyDetectorAlgorithmOneTest extends AbstractIntegrationTest {
                     consumerRecords -> consumerRecords.stream().anyMatch(r -> r.value().thermometerId().equals("thermometer")),
                     Duration.ofSeconds(5)
             );
+        }
+    }
+
+    @Test
+    void testAlgorithmOneWithoutAnomaly() {
+        try (TestKafkaConsumer<Anomaly> consumer = new TestKafkaConsumer<>(kafkaContainer.getBootstrapServers(), outputTopic, Anomaly.class);
+             TestKafkaProducer<TemperatureReading> producer = new TestKafkaProducer<>(kafkaContainer.getBootstrapServers(), inputTopic)) {
+            sendTenReadingsWithoutAnomaly(producer);
+            consumer.assertNoMoreRecords(Duration.ofSeconds(5));
         }
     }
 
@@ -44,7 +55,12 @@ public class AnomalyDetectorAlgorithmOneTest extends AbstractIntegrationTest {
         producer.produce(temperatureReading.thermometerId(), temperatureReading);
     }
 
-    // TODO IMPLEMENT TEST WITHOUT ANOMALY
+    private void sendTenReadingsWithoutAnomaly(final TestKafkaProducer<TemperatureReading> producer) {
+        for(int i=0; i<10; i++) {
+            TemperatureReading temperatureReadingTwo = new TemperatureReading(20d, "room", "thermometer", Instant.now());
+            producer.produce(temperatureReadingTwo.thermometerId(), temperatureReadingTwo);
+        }
+    }
 
     @Test
     public void testNoAnomalyDetected() {
