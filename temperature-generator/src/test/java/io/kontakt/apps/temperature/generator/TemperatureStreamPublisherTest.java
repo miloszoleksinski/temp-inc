@@ -19,12 +19,7 @@ public class TemperatureStreamPublisherTest extends AbstractIntegrationTest {
 
     @Test
     void testRecordPublishing() {
-
-        try (TestKafkaConsumer<TemperatureReading> consumer = new TestKafkaConsumer<>(
-                kafkaContainer.getBootstrapServers(),
-                topic,
-                TemperatureReading.class
-        )) {
+        try (TestKafkaConsumer<TemperatureReading> consumer = new TestKafkaConsumer<>( kafkaContainer.getBootstrapServers(), topic, TemperatureReading.class )) {
             TemperatureReading temperatureReading = new TemperatureReading(20d, "room", "thermometer", Instant.parse("2023-01-01T00:00:00.000Z"));
             publisher.publish(temperatureReading);
             consumer.drain(
