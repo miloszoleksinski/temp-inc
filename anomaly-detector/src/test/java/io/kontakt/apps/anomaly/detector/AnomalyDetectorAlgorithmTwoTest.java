@@ -4,23 +4,55 @@ import io.kontak.apps.anomaly.detector.AnomalyDetectorAlgorithmTwo;
 import io.kontak.apps.event.Anomaly;
 import io.kontak.apps.event.TemperatureReading;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static io.kontakt.apps.anomaly.detector.AbstractIntegrationTest.kafkaContainer;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class AnomalyDetectorAlgorithmTwoTest {
+public class AnomalyDetectorAlgorithmTwoTest extends AbstractIntegrationTest {
+
+    @Value("${spring.cloud.stream.bindings.anomalyDetectorProcessor-in-0.destination}")
+    private String inputTopic;
+
+    @Value("${spring.cloud.stream.bindings.anomalyDetectorProcessor-out-0.destination}")
+    private String outputTopic;
+
+    @Test
+    void testInOutFlow() {
+        try (TestKafkaConsumer<Anomaly> consumer = new TestKafkaConsumer<>(kafkaContainer.getBootstrapServers(), outputTopic, Anomaly.class);
+             TestKafkaProducer<TemperatureReading> producer = new TestKafkaProducer<>(kafkaContainer.getBootstrapServers(), inputTopic)) {
+            sendTenReadingsWithOneAnomaly(producer);
+            consumer.drain(
+                    consumerRecords -> consumerRecords.stream().anyMatch(r -> r.value().thermometerId().equals("thermometer")),
+                    Duration.ofSeconds(5)
+            );
+        }
+    }
+
+    private void sendTenReadingsWithOneAnomaly(final TestKafkaProducer<TemperatureReading> producer) {
+        for(int i=0; i<9; i++) {
+            TemperatureReading temperatureReadingTwo = new TemperatureReading(20d, "room", "thermometer", Instant.now());
+            producer.produce(temperatureReadingTwo.thermometerId(), temperatureReadingTwo);
+        }
+        TemperatureReading temperatureReading = new TemperatureReading(26d, "room", "thermometer", Instant.now());
+        producer.produce(temperatureReading.thermometerId(), temperatureReading);
+    }
+
+    // TODO IMPLEMENT TEST WITHOUT ANOMALY AND IMPROVE IT TO INCLUDE TIME SPECIFICS
 
     @Test
     public void testNoAnomalyDetected() {
         AnomalyDetectorAlgorithmTwo algorithmTwo = new AnomalyDetectorAlgorithmTwo();
 
         List<TemperatureReading> readings = new ArrayList<>();
-        for (double temperature : new double[]{19.1, 19.2, 19.5, 19.7, 19.3, 25.1, 18.2, 19.1, 19.2, 25.4}) {
+        for (double temperature : new double[]{19.1, 19.2, 19.5, 19.7, 19.3, 25.1, 18.2, 19.1, 19.2, 25.37}) {
             readings.add(new TemperatureReading(temperature, "roomId", "thermometerId", Instant.now()));
         }
 
