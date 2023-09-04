@@ -27,7 +27,7 @@ public class SimpleTemperatureGenerator implements TemperatureGenerator {
     @Override
     public List<TemperatureReading> generate() {
         List<TemperatureReading> temperatureReadings = new ArrayList<>();
-        for(int i=0; i<=10; i++) {
+        for(int i=0; i<=1; i++) {
             temperatureReadings.add(generateSingleReading());
         }
         return temperatureReadings;

@@ -2,6 +2,8 @@ package io.kontak.apps.anomaly.detector;
 
 import io.kontak.apps.event.Anomaly;
 import io.kontak.apps.event.TemperatureReading;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -12,6 +14,7 @@ import java.util.Optional;
 
 @Component("anomalyDetectorAlgorithmTwo")
 public class AnomalyDetectorAlgorithmTwo implements AnomalyDetector {
+    Logger logger = LoggerFactory.getLogger(AnomalyDetectorAlgorithmTwo.class);
 
     private static final double ANOMALY_THRESHOLD = 5.0;
     private static final int WINDOW_SIZE_SECONDS = 10;
@@ -51,6 +54,11 @@ public class AnomalyDetectorAlgorithmTwo implements AnomalyDetector {
     }
 
     private boolean isAnomaly(final double currentTemperature, final double averageTemperature) {
-        return Math.abs(currentTemperature - averageTemperature) > ANOMALY_THRESHOLD;
+        boolean isAnomaly = Math.abs(currentTemperature - averageTemperature) > ANOMALY_THRESHOLD;
+        if(isAnomaly) {
+            logger.info("Anomaly found, temperature: {}, average of 10 temperatures: {}, difference: {}",
+                    currentTemperature, averageTemperature, (currentTemperature - averageTemperature));
+        }
+        return isAnomaly;
     }
 }
