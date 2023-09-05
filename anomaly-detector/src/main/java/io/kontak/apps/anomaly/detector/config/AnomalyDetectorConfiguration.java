@@ -2,12 +2,15 @@ package io.kontak.apps.anomaly.detector.config;
 
 import io.kontak.apps.anomaly.detector.AnomalyDetector;
 import io.kontak.apps.anomaly.detector.TemperatureMeasurementsListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class AnomalyDetectorConfiguration {
+    Logger logger = LoggerFactory.getLogger(AnomalyDetectorConfiguration.class);
 
     @Bean
     public TemperatureMeasurementsListener temperatureMeasurementsListener(
@@ -26,6 +29,7 @@ public class AnomalyDetectorConfiguration {
                                                final AnomalyDetector anomalyDetectorTwo,
                                                final AnomalyDetector alwaysAnomalyDetector) {
         String selectedAlgorithm = configProperties.getAlgorithm();
+        logger.info("Selected algorithm: {}", selectedAlgorithm);
         if ("algorithmOne".equals(selectedAlgorithm)) {
             return anomalyDetectorOne;
         } else if ("algorithmTwo".equals(selectedAlgorithm)) {

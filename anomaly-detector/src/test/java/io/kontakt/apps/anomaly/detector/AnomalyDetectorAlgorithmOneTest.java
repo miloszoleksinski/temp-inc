@@ -42,7 +42,7 @@ public class AnomalyDetectorAlgorithmOneTest extends AbstractIntegrationTest {
         try (TestKafkaConsumer<Anomaly> consumer = new TestKafkaConsumer<>(kafkaContainer.getBootstrapServers(), outputTopic, Anomaly.class);
              TestKafkaProducer<TemperatureReading> producer = new TestKafkaProducer<>(kafkaContainer.getBootstrapServers(), inputTopic)) {
             sendTenReadingsWithoutAnomaly(producer);
-            consumer.assertNoMoreRecords(Duration.ofSeconds(5));
+            consumer.assertNoRecords(Duration.ofSeconds(5));
         }
     }
 
