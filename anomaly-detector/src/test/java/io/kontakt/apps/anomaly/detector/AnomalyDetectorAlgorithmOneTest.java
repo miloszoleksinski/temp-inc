@@ -20,15 +20,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class AnomalyDetectorAlgorithmOneTest extends AbstractIntegrationTest {
 
     @Value("${spring.cloud.stream.bindings.anomalyDetectorProcessor-in-0.destination}")
-    private String inputTopic;
+    private String inputTopicWithAnomaly;
 
     @Value("${spring.cloud.stream.bindings.anomalyDetectorProcessor-out-0.destination}")
-    private String outputTopic;
+    private String outputTopicWithAnomaly;
+
+    @Value("${spring.cloud.stream.bindings.anomalyDetectorProcessor-in-1.destination}")
+    private String inputTopicWithoutAnomaly;
+
+    @Value("${spring.cloud.stream.bindings.anomalyDetectorProcessor-out-1.destination}")
+    private String outputTopicWithoutAnomaly;
 
     @Test
     void testAlgorithmOneWithAnomaly() {
-        try (TestKafkaConsumer<Anomaly> consumer = new TestKafkaConsumer<>(kafkaContainer.getBootstrapServers(), outputTopic, Anomaly.class);
-             TestKafkaProducer<TemperatureReading> producer = new TestKafkaProducer<>(kafkaContainer.getBootstrapServers(), inputTopic)) {
+        try (TestKafkaConsumer<Anomaly> consumer = new TestKafkaConsumer<>(kafkaContainer.getBootstrapServers(), outputTopicWithAnomaly, Anomaly.class);
+             TestKafkaProducer<TemperatureReading> producer = new TestKafkaProducer<>(kafkaContainer.getBootstrapServers(), inputTopicWithAnomaly)) {
             sendTenReadingsWithOneAnomaly(producer);
             consumer.drain(
                     consumerRecords -> consumerRecords.stream().anyMatch(r -> r.value().thermometerId().equals("thermometer")),
@@ -39,8 +45,8 @@ public class AnomalyDetectorAlgorithmOneTest extends AbstractIntegrationTest {
 
     @Test
     void testAlgorithmOneWithoutAnomaly() {
-        try (TestKafkaConsumer<Anomaly> consumer = new TestKafkaConsumer<>(kafkaContainer.getBootstrapServers(), outputTopic, Anomaly.class);
-             TestKafkaProducer<TemperatureReading> producer = new TestKafkaProducer<>(kafkaContainer.getBootstrapServers(), inputTopic)) {
+        try (TestKafkaConsumer<Anomaly> consumer = new TestKafkaConsumer<>(kafkaContainer.getBootstrapServers(), outputTopicWithoutAnomaly, Anomaly.class);
+             TestKafkaProducer<TemperatureReading> producer = new TestKafkaProducer<>(kafkaContainer.getBootstrapServers(), inputTopicWithoutAnomaly)) {
             sendTenReadingsWithoutAnomaly(producer);
             consumer.assertNoRecords(Duration.ofSeconds(5));
         }
