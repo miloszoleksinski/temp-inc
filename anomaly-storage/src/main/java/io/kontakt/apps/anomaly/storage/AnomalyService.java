@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -27,6 +28,13 @@ public class AnomalyService {
     public void save(final Anomaly detectedAnomaly) {
         AnomalyDB anomalyDB = anomalyMapper.toDTO(detectedAnomaly);
         handleExceptionAndLog(() -> anomalyMapper.toModel(anomalyRepository.save(anomalyDB)), "save anomaly");
+    }
+
+    public Anomaly findById(String id) {
+        Optional<AnomalyDB> optionalAnomalyDB = handleExceptionAndLog(() -> anomalyRepository.findById(id),"retrieve all anomalies");
+        return optionalAnomalyDB
+                .map(anomalyMapper::toModel)
+                .orElse(null);
     }
 
     public List<Anomaly> findAll() {
