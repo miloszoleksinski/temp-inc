@@ -1,6 +1,5 @@
 package io.kontakt.apps.anomaly.detector;
 
-import io.kontak.apps.anomaly.detector.AnomalyDetectorApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
