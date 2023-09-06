@@ -1,5 +1,6 @@
 package io.kontak.apps.anomaly.detector.config;
 
+import io.kontak.anomaly.storage.AnomalyService;
 import io.kontak.apps.anomaly.detector.AnomalyDetector;
 import io.kontak.apps.anomaly.detector.TemperatureMeasurementsListener;
 import org.slf4j.Logger;
@@ -17,10 +18,12 @@ public class AnomalyDetectorConfiguration {
             final ConfigProperties configProperties,
             @Qualifier("anomalyDetectorAlgorithmOne") final AnomalyDetector anomalyDetectorOne,
             @Qualifier("anomalyDetectorAlgorithmTwo") final AnomalyDetector anomalyDetectorTwo,
-            @Qualifier("alwaysAnomalyAnomalyDetector") final AnomalyDetector alwaysAnomalyDetector) {
+            @Qualifier("alwaysAnomalyAnomalyDetector") final AnomalyDetector alwaysAnomalyDetector,
+            final AnomalyService anomalyService) {
 
         return new TemperatureMeasurementsListener(
-                selectAnomalyDetector(configProperties, anomalyDetectorOne, anomalyDetectorTwo, alwaysAnomalyDetector)
+                selectAnomalyDetector(configProperties, anomalyDetectorOne, anomalyDetectorTwo, alwaysAnomalyDetector),
+                anomalyService
         );
     }
 

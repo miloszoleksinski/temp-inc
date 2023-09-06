@@ -16,6 +16,12 @@
             <groupId>io.kontak.apps</groupId>
             <artifactId>temperature-domain</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.kontak.apps</groupId>
+            <artifactId>anomaly-storage</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -56,7 +62,6 @@
             <artifactId>kafka</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>
