@@ -29,8 +29,6 @@ public class AnomalyDetectorAlgorithmTwoTest extends AbstractIntegrationTest {
 
     @Value("${spring.cloud.stream.bindings.anomalyDetectorProcessor-out-1.destination}")
     private String outputTopicWithoutAnomaly;
-
-    // TODO improve the tests with different time variations to produce different results
     @Test
     void testAlgorithmTwoWithAnomaly() {
         try (TestKafkaConsumer<Anomaly> consumer = new TestKafkaConsumer<>(kafkaContainer.getBootstrapServers(), outputTopicWithAnomaly, Anomaly.class);
